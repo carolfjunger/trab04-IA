@@ -50,7 +50,7 @@ class PlayerInfo():
     state = State.ready
     
     '''Player color (R, G, B)'''
-    color = (255,0,0)
+    color = (102, 0, 204)
         
     # Create a new PlayerInfo DTO
     #################################

@@ -5,10 +5,22 @@ Location = TypeVar('Location')
 Obstacle = TypeVar('Obstacle')
 
 class Obstacle:
-    def __init__(self, w, ch, it):
+    def __init__(self, w, ch, it, c):
         self.weight = w
         self.itemtype = it
+        self.chance = c
         self.character = ch
+
+    def getsign(self):
+        if self.chance >= 1:
+            return self.character.upper()
+        else:
+            return self.character
+    def setarea(self, c):
+        self.chance += c
+        if self.chance >= 1:
+            self.character = self.character.upper()
+
 
 class Graph:
     def __init__(self):

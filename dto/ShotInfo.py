@@ -40,7 +40,7 @@ class ShotInfo():
     # <summary>
     # Shot color (R, G, B)
     # </summary>
-    color = (255,0,0)
+    color = (102, 0, 204)
 
     # <summary>
     # Create a (fire)shot DTO
