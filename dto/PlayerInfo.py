@@ -50,7 +50,7 @@ class PlayerInfo():
     state = State.ready
     
     '''Player color (R, G, B)'''
-    color = (0,0,0)
+    color = (255,0,0)
         
     # Create a new PlayerInfo DTO
     #################################
@@ -68,4 +68,4 @@ class PlayerInfo():
         self.y = y
         self.dir = dir
         self.state = state
-        self.color = color
+        self.color = (255 ,0 ,0)
