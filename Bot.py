@@ -33,7 +33,7 @@ import datetime
 # </summary>
 class Bot():
 
-    name = "R2D2" # BOT NAME
+    name = "R2D2_1" # BOT NAME
     host = "atari.icad.puc-rio.br" # SERVER
 
     client = None
@@ -80,7 +80,7 @@ class Bot():
         G = int(p[2][(p[2].find('=') + 1):])
         B = int(p[3][(p[3].find('=') + 1):])
 
-        return (R, G, B)
+        return (255, 255, 255)
     
     # <summary>
     # Receive Command From TCP Client
@@ -360,6 +360,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
+            self.client.sendRGB(255, 0, 0) # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()

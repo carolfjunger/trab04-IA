@@ -48,7 +48,7 @@ class ScoreBoard():
     # <summary>
     # Player color (R, G, B)
     # </summary>
-    color = (0, 0, 0)
+    color = (255, 0, 0)
 
 
     # <summary>

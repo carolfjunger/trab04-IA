@@ -38,6 +38,10 @@ class GameAI():
     visited = {}
     input = open("MapDiscovered.txt", 'r')
     virtualMap = []
+    atacar = False
+    estadoAtual = "explorar"
+    percurso = []
+    oldPos = ()
     for l in input:
         virtualMap.append(list(l))
 
@@ -51,7 +55,8 @@ class GameAI():
     # <param name="score">player score</param>
     # <param name="energy">player energy</param>
     def SetStatus(self, x, y, dir, state, score, energy):
-    
+        if(self.player.x != x or self.player.y != y ):
+            self.oldPos = (self.player.x , self.player.y )
         self.player.x = x
         self.player.y = y
         self.dir = dir.lower()
@@ -126,21 +131,21 @@ class GameAI():
     def PrevPosition(self):
 
         
-        # ret = None
+        ret = None
 
-        # if self.dir == "north":
-        #     ret = Position(self.player.x, self.player.y + 1)
+        if self.dir == "north":
+            ret = Position(self.player.x, self.player.y + 1)
                 
-        # elif self.dir == "east":
-        #         ret = Position(self.player.x - 1, self.player.y)
+        elif self.dir == "east":
+                ret = Position(self.player.x - 1, self.player.y)
                 
-        # elif self.dir == "south":
-        #         ret = Position(self.player.x, self.player.y - 1)
+        elif self.dir == "south":
+                ret = Position(self.player.x, self.player.y - 1)
                 
-        # elif self.dir == "west":
-        #         ret = Position(self.player.x + 1, self.player.y)
+        elif self.dir == "west":
+                ret = Position(self.player.x + 1, self.player.y)
 
-        # return ret
+        return ret
 
 
     
@@ -162,16 +167,43 @@ class GameAI():
         self.player.x = x
         self.player.y = y
 
-    
+    def insere_percurso(self, acao):
+        self.percurso.insert(0, acao)
+
+    def maquina_estado(self):
+        estado = self.estadoAtual
+
+        if(estado == "atacar"):
+            self.insere_percurso("atacar")
+        elif (estado == "fugir"):
+            # melhorar depois
+            self.insere_percurso("virar_esquerda")
+            self.insere_percurso("andar")
+            self.insere_percurso("virar_esquerda")
+            self.insere_percurso("andar")
+            self.insere_percurso("virar_esquerda")
+            self.insere_percurso("andar")
+        elif (estado == "achou_ouro"):
+            self.insere_percurso("pegar_ouro")
+        elif (estado == "achou_powerUp"):
+            pos = self.GetPlayerPosition()
+            print("PEGOU POWER X:", str(pos.x),"Y" ,str(pos.y))
+            self.insere_percurso("pegar_powerup")
+
+            
 
     # <summary>
     # Observations received
     # </summary>
     # <param name="o">list of observations</param>
     def GetObservations(self, o):
-    
+        print('oldPos', self.oldPos)
+        pos = self.GetPlayerPosition()
+        print('pos', (pos.x, pos.y))
         #cmd = "";
         for s in o:
+            enemy = s.split('#')
+            
 
             if s == "blocked":
                 npos = self.NextPosition()
@@ -181,37 +213,60 @@ class GameAI():
                     self.mapp[(pos.x, pos.y)] = {}
                 self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none")
                 self.virtualMap[npos.y][npos.x] = "O"
+                self.estadoAtual= ""
 
             elif s == "steps":
+
+                self.estadoAtual= ""
                 pass
             
             elif s == "breeze":
+
+                self.estadoAtual= ""
                 pass
 
             elif s == "flash":
                 pos = self.GetPlayerPosition()
                 ppos = self.PrevPosition()
-                if ()
+                # if ()
                 # self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'T', "Teleporter")
                 self.virtualMap[pos.y][pos.x] = "T"
-
+                self.estadoAtual= ""
             elif s == "blueLight":
                 pos = self.GetPlayerPosition()
                 ppos = self.PrevPosition()
                 # self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold")
                 self.virtualMap[pos.y][pos.x] = "E"
-
+                print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
+                self.estadoAtual= "achou_powerUp"
             elif s == "redLight":
                 pos = self.GetPlayerPosition()
                 ppos = self.PrevPosition()
                 # self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold")
                 self.virtualMap[pos.y][pos.x] = "G"
-            
+                self.estadoAtual= "achou_ouro"
+            elif enemy[0] == "enemy":
+                enemyDist = int(enemy[1])
+                if(enemyDist < 7):
+                    self.estadoAtual = "atacar"
+                else:
+                    self.estadoAtual= ""
+                    print("SEGUE")
+            elif s == "damage":
+                self.estadoAtual = "fugir"
+            elif s == '':
+                self.estadoAtual= ""
 
-        print(o)
+            self.maquina_estado()
+
+        print("obs", o)
         # print(self.virtualMap[0][0])
         for i in self.virtualMap:
             print(''.join(i))
+
+
+
+
 
     # <summary>
     # No observations received
@@ -229,12 +284,23 @@ class GameAI():
     # <returns>command string to new decision</returns>
     # "virar_direita" , "virar_esquerda" , "andar" , "atacar" , "pegar_ouro" , "pegar_anel" , "pegar_powerup" , "andar_re"
     def GetDecision(self):
+        
+
         x = self.GetPlayerPosition().x
         y = self.GetPlayerPosition().y
         print(x , y)
         # for i in self.GetAllAdjacentPositions():
         #     print(i.x, i.y)
-        n = random.randint(0,7)
+
+        if(len(self.percurso)):
+            comando = self.percurso.pop(0)
+            if(comando == 'atacar'):
+                print("ATIROU")
+            return comando
+        
+        n = random.randint(0,6)
+
+        
 
         if n == 0:
             return "virar_direita"
@@ -251,6 +317,7 @@ class GameAI():
         elif n == 6:
             return "andar"
         elif n == 7:
-            return "andar"
+            print("ATIROU")
+            return "atacar"
 
         return ""
