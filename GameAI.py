@@ -24,6 +24,7 @@ from MappingAI import *
 import random
 from Map.Position import Position
 
+
 # <summary>
 # Game AI Example
 # </summary>
