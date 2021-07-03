@@ -20,7 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 #############################################################
 """
 
-from threading import Timer
+from threading import Semaphore, Timer
 from GameAI import GameAI
 import Socket.HandleClient
 from Socket.HandleClient import HandleClient
@@ -41,7 +41,7 @@ class Bot():
     timer1 = None
     
     running = True
-    thread_interval = 0.1
+    thread_interval = 0.15
 
     playerList = {} #new Dictionary<long, PlayerInfo>
     shotList = [] #new List<ShotInfo>
@@ -54,6 +54,8 @@ class Bot():
     msg = []
     msgSeconds = 0
 
+    obj = None
+
     # <summary>
     # Bot Constructor
     # </summary>
@@ -61,7 +63,7 @@ class Bot():
 
         self.client = HandleClient()
         self.gameAi = GameAI()
-
+        self.obj = Semaphore(1)  
         # duration is in seconds
         self.timer1 = Timer(self.thread_interval, self.timer1_Tick)
 
@@ -69,7 +71,9 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
+        self.client.sendColor([102, 0, 204])
         self.timer1.start()
+        
 
     
     def convertFromString(self, c):
@@ -298,10 +302,12 @@ class Bot():
     # Execute some decision
     # </summary>
     def DoDecision(self):
-        self.client.sendRequestObservation()
-        self.client.sendRequestUserStatus()
+        
+        
 
+        # self.obj.acquire()
         decision = self.gameAi.GetDecision()
+        print('ACAO', decision )
         if decision == "virar_direita":
             self.client.sendTurnRight()
         elif decision == "virar_esquerda":
@@ -318,6 +324,11 @@ class Bot():
             self.client.sendGetItem()
         elif decision ==  "andar_re":
             self.client.sendBackward()
+
+        self.client.sendRequestUserStatus()
+        self.client.sendRequestObservation()
+        
+        # self.obj.release()  
 
 
     def timer1_Tick(self):
@@ -360,7 +371,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(255, 0, 0) # BOT COLOR
+            self.client.sendRGB(102, 0, 204) # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()

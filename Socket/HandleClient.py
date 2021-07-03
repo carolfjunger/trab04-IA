@@ -198,14 +198,14 @@ class HandleClient():
     # <param name="g">Green color 0-255</param>
     # <param name="b">Blue color 0-255</param>
     def sendRGB(self, r, g, b):
-        self.sendColor('#%02x%02x%02x' % (255, 0, 0))
+        self.sendColor('#%02x%02x%02x' % (r, g, b))
 
     # <summary>
     # Change player color (Color)
     # </summary>
     # <param name="color">Color object</param>
     def sendColor(self, color):
-        self.sendMsg("color;" + str(255) + ";" + str(0) + ";" + str(0));
+        self.sendMsg("color;" + str(color[0]) + ";" + str(color[1]) + ";" + str(color[2]))
 
     # <summary>
     # Send a raw command to the server
