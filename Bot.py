@@ -71,7 +71,11 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
+<<<<<<< HEAD
         self.client.sendColor([0, 174, 0])
+=======
+        self.client.sendColor([200, 200, 255])
+>>>>>>> 01b0fd73d0c946058a64c4f054907acf42392aa1
         self.timer1.start()
         
 
