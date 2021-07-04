@@ -44,7 +44,7 @@ class GameAI():
     virtualMap = []
     atacar = False
     estadoAtual = "explorar"
-    brezee = False
+    fuga = False
     oldPos = ()
     countstep = 0
     fstpos = Position()
@@ -157,28 +157,45 @@ class GameAI():
         self.player.x = x
         self.player.y = y
 
+
+    def random_virar(self):
+        return random.choice(["virar_direita", "virar_esquerda"])
+
+    def random_blocked(self):
+        decision = self.random_virar()
+        return [decision, decision, "andar"]
+
     def insere_percurso(self, acao):
-        self.DecisionLis.insert(0, acao)
+        if(len(self.DecisionLis) > 10):
+            self.DecisionLis = acao
+        else:
+            self.DecisionLis = acao + self.DecisionLis
 
     def maquina_estado(self):
         estado = self.estadoAtual
+        virar = self.random_virar()
+        if(estado == "atacar"):
+            self.insere_percurso(["atacar"])
+        elif (estado == "fugir"):
+            if(self.fuga == False):
+                decision = [virar, "andar", virar,  "andar", virar, "andar" ]
+                if(self.DecisionLis[0].split('_')[0] == "virar"):
+                    decision = ["andar", virar, "andar", virar, "andar", virar,  "andar"]
+            else:
+                self.fuga = True
+            
+            # melhorar depois
+            self.insere_percurso(decision)
+        elif (estado == "achou_ouro"):
+            self.insere_percurso(["pegar_ouro", "pegar_anel"])
+        elif (estado == "achou_powerUp"):
+            self.insere_percurso(["pegar_powerup"])
+        elif (estado == "blocked"):
+            # self.insere_percurso([self.random_blocked(), virar])
+            self.insere_percurso(self.random_blocked())
 
-        # if(estado == "atacar"):
-        #     self.insere_percurso("atacar")
-        # elif (estado == "fugir"):
-        #     # melhorar depois
-        #     self.insere_percurso("virar_esquerda")
-        #     self.insere_percurso("andar")
-        #     self.insere_percurso("virar_esquerda")
-        #     self.insere_percurso("andar")
-        #     self.insere_percurso("virar_esquerda")
-        #     self.insere_percurso("andar")
-        # elif (estado == "achou_ouro"):
-        #     self.insere_percurso("pegar_ouro")
-        # elif (estado == "achou_powerUp"):
-        #     pos = self.GetPlayerPosition()
-        #     print("PEGOU POWER X:", str(pos.x),"Y" ,str(pos.y))
-        #     self.insere_percurso("pegar_powerup")
+        if(estado == "explorar"):
+            self.fuga = False
 
             
 
@@ -213,12 +230,12 @@ class GameAI():
 
             self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
             self.estadoAtual= ""
-
+            self.maquina_estado()
         if "steps" in o:
             if len(self.DecisionLis) == 0:
                 self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda", "andar_re"]), "andar", "andar"]
             self.estadoAtual= ""
-        
+            self.maquina_estado()
         if "breeze" in o:
 
             self.estadoAtual= "breeze"
@@ -240,7 +257,7 @@ class GameAI():
                 if type(self.mapp.edges[(pos.x, pos.y)][i]) != Obstacle:
                     self.mapp.edges[(pos.x, pos.y)][i] = Obstacle(1000, 'x', "Buraco", 0.25)
                 self.virtualMap[i[0]][i[1]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
-
+            self.maquina_estado()
         if "flash" in o:
 
             self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
@@ -264,17 +281,21 @@ class GameAI():
                 self.virtualMap[i[0]][i[1]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
 
             self.estadoAtual= ""
+            self.maquina_estado()
         for i in o:
             if "enemy" in i:
                 enemy = i.split('#')
                 enemyDist = int(enemy[1])
                 if(enemyDist < 7):
                     self.estadoAtual = "atacar"
+                    if(self.energy < 50):
+                        self.estadoAtual = "fugir"
                 else:
                     self.estadoAtual= ""
                     print("SEGUE")
             elif "damage" in o:
                 self.estadoAtual = "fugir"
+            self.maquina_estado()
             # elif s == '':
             #     self.estadoAtual= ""
 
@@ -291,6 +312,7 @@ class GameAI():
             self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
             print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
             self.estadoAtual= "achou_powerUp"
+            self.maquina_estado()
 
         if "redLight" in o:
 
@@ -340,8 +362,8 @@ class GameAI():
         print("--> ", self.DecisionLis)
         if len(self.DecisionLis) == 0:
             print("decision random")
-            n = random.choice(["virar_direita", "virar_esquerda", "andar"])
+            n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
             return n
         else:
-            print(self.DecisionLis[0])
+            print("aquiii", self.DecisionLis)
             return self.DecisionLis.pop(0)
