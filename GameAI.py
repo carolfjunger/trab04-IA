@@ -44,7 +44,7 @@ class GameAI():
     virtualMap = []
     atacar = False
     estadoAtual = "explorar"
-    brezee = False
+    fuga = False
     oldPos = ()
     countstep = 0
     fstpos = Position()
@@ -161,6 +161,10 @@ class GameAI():
     def random_virar(self):
         return random.choice(["virar_direita", "virar_esquerda"])
 
+    def random_blocked(self):
+        decision = self.random_virar()
+        return [decision, decision, "andar"]
+
     def insere_percurso(self, acao):
         if(len(self.DecisionLis) > 10):
             self.DecisionLis = acao
@@ -173,23 +177,25 @@ class GameAI():
         if(estado == "atacar"):
             self.insere_percurso(["atacar"])
         elif (estado == "fugir"):
-            
-            print('virar', virar)
-            print('self.DecisionLis[0]', self.DecisionLis[0])
-            decision = [virar, "andar", virar,  "andar", virar, "andar" ]
-            if(self.DecisionLis[0].split('_')[0] == "virar"):
-                decision = ["andar", virar, "andar", virar, "andar", virar,  "andar"]
+            if(self.fuga == False):
+                decision = [virar, "andar", virar,  "andar", virar, "andar" ]
+                if(self.DecisionLis[0].split('_')[0] == "virar"):
+                    decision = ["andar", virar, "andar", virar, "andar", virar,  "andar"]
+            else:
+                self.fuga = True
             
             # melhorar depois
             self.insere_percurso(decision)
         elif (estado == "achou_ouro"):
             self.insere_percurso(["pegar_ouro", "pegar_anel"])
         elif (estado == "achou_powerUp"):
-            pos = self.GetPlayerPosition()
-            print("PEGOU POWER X:", str(pos.x),"Y" ,str(pos.y))
             self.insere_percurso(["pegar_powerup"])
         elif (estado == "blocked"):
-            self.insere_percurso(["andar_re", virar])
+            # self.insere_percurso([self.random_blocked(), virar])
+            self.insere_percurso(self.random_blocked())
+
+        if(estado == "explorar"):
+            self.fuga = False
 
             
 
@@ -356,7 +362,7 @@ class GameAI():
         print("--> ", self.DecisionLis)
         if len(self.DecisionLis) == 0:
             print("decision random")
-            n = random.choice(["virar_direita", "virar_esquerda", "andar"])
+            n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
             return n
         else:
             print("aquiii", self.DecisionLis)
