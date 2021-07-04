@@ -12,7 +12,7 @@ def heuristic1(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 # Reconstruct A* path
-def pathFinder(goal: Location, came_from: dict):
+def pathFinder(goal: Location, start: Location, came_from: dict):
     path = []
     current = goal
     while current != start: 

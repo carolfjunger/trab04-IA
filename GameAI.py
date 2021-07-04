@@ -64,9 +64,10 @@ class GameAI():
     def SetStatus(self, x, y, dir, state, score, energy):
         if (self.player.x != x or self.player.y != y) :
             self.prevplayer.x, self.prevplayer.y = self.player.x, self.player.y
-            self.countstep += 1
         self.player.x = x
         self.player.y = y
+        if (self.player.x, self.player.y) not in self.mapp.edges:
+            self.mapp.edges[(self.player.x, self.player.y)] ={}
         if self.fstposbool:
             self.fstpos.x, self.fstpos.y = self.player.x, self.player.y
             self.fstposbool = False
@@ -189,26 +190,33 @@ class GameAI():
         #cmd = "";
         # for s in o:
         # enemy = s.split('#')
-        # astar = []
-        # constsofar = None
-        # if self.countstep >= 10:
-        #     astar, costsofar = a_star_search(self.mapp.edges, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
-        #     self.countstep = 0
-        #     print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
-        #     print(list(self.mapp.edges))
+        self.countstep += 1
+        print("count  ", self.countstep)
+
+        astar = []
+        constsofar = None
+        if self.countstep >= 10:
+            astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
+            self.countstep = 0
+            print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
+            print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
+
         if "blocked" in o:
 
             npos = self.NextPosition()
             pos = self.GetPlayerPosition()
-            if (pos.x, pos.y) not in self.mapp.edges:
-                self.mapp.edges[(pos.x, pos.y)] = {}
+            ppos = self.prevplayer
+            # if (pos.x, pos.y) not in self.mapp.edges:
+            #     self.mapp.edges[(pos.x, pos.y)] = {}
             self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+
             self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
             self.estadoAtual= ""
 
         if "steps" in o:
-
-            self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda", "andar_re"]), "andar", "andar"] + self.DecisionLis
+            if len(self.DecisionLis) == 0:
+                self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda", "andar_re"]), "andar", "andar"]
             self.estadoAtual= ""
         
         if "breeze" in o:
@@ -219,9 +227,11 @@ class GameAI():
             ppos = self.prevplayer
             npos = self.NextPosition()
             allpos = []
-            if (pos.x, pos.y) not in self.mapp.edges:
-                self.mapp.edges[(pos.x, pos.y)] = {}
+            # if (pos.x, pos.y) not in self.mapp.edges:
+            #     self.mapp.edges[(pos.x, pos.y)] = {}
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+
             allpos = self.GetAllAdjacentPositions()
             loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
             for i in loc3:
@@ -238,9 +248,11 @@ class GameAI():
             ppos = self.prevplayer
             npos = self.NextPosition()
             allpos = []
-            if (pos.x, pos.y) not in self.mapp.edges:
-                self.mapp.edges[(pos.x, pos.y)] = {}
+            # if (pos.x, pos.y) not in self.mapp.edges:
+            #     self.mapp.edges[(pos.x, pos.y)] = {}
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+
             allpos = self.GetAllAdjacentPositions()
             loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
 
@@ -254,7 +266,7 @@ class GameAI():
             self.estadoAtual= ""
         for i in o:
             if "enemy" in i:
-                enemy = s.split('#')
+                enemy = i.split('#')
                 enemyDist = int(enemy[1])
                 if(enemyDist < 7):
                     self.estadoAtual = "atacar"
@@ -271,9 +283,10 @@ class GameAI():
             self.DecisionLis = ["pegar_powerup", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
-            if (pos.x, ppos.y) not in self.mapp.edges:
-                self.mapp.edges[(pos.x, pos.y)] = {}
+            # if (pos.x, ppos.y) not in self.mapp.edges:
+            #     self.mapp.edges[(pos.x, pos.y)] = {}
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'E', "energy", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
             self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
             print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
@@ -284,9 +297,11 @@ class GameAI():
             self.DecisionLis = [ "pegar_anel", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
-            if (pos.x, pos.y) not in self.mapp.edges:
-                self.mapp.edges[(pos.x, pos.y)] = {}
+            # if (pos.x, pos.y) not in self.mapp.edges:
+            #     self.mapp.edges[(pos.x, pos.y)] = {}
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+
             self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
             self.estadoAtual= "achou_ouro"
 
@@ -309,9 +324,9 @@ class GameAI():
             self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
         pos = self.GetPlayerPosition()
         ppos = self.prevplayer
-        if (pos.x, pos.y) not in self.mapp.edges:
-            self.mapp.edges[(pos.x, pos.y)] = {}
         self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
+        self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+
         if self.virtualMap[pos.y][pos.x] not in "GExXtT":
             self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
     
