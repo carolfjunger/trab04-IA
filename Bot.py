@@ -71,7 +71,7 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
-        self.client.sendColor([50, 50, 204])
+        self.client.sendColor([0, 174, 0])
         self.timer1.start()
         
 
@@ -372,7 +372,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(102, 0, 204) # BOT COLOR
+            self.client.sendRGB(0, 174, 0) # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()

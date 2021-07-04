@@ -178,7 +178,8 @@ class GameAI():
             self.insere_percurso(["atacar"])
         elif (estado == "fugir"):
             if(self.fuga == False):
-                decision = [virar, "andar", virar,  "andar", virar, "andar" ]
+                # decision = [virar, "andar", virar,  "andar", virar, "andar" ]
+                decision = [virar, "andar", "andar", virar, "andar" ]
                 if(self.DecisionLis[0].split('_')[0] == "virar"):
                     decision = ["andar", virar, "andar", virar, "andar", virar,  "andar"]
             else:
@@ -330,8 +331,8 @@ class GameAI():
             self.maquina_estado()
 
         print("obs", o)
-        for i in self.virtualMap:
-            print(''.join(i))
+        # for i in self.virtualMap:
+        #     print(''.join(i))
 
 
 
