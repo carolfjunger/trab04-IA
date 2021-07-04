@@ -116,7 +116,10 @@ class Bot():
                                     o.append(os[i])
                             
                             else:
-                                o.append(cmd[1])
+                                if(cmd[1] == "breeze"):
+                                    o.insert(0, cmd[1])
+                                else:
+                                    o.append(cmd[1])
 
                             self.gameAi.GetObservations(o)
                         
