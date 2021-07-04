@@ -41,7 +41,7 @@ class Bot():
     timer1 = None
     
     running = True
-    thread_interval = 0.15
+    thread_interval = 0.1
 
     playerList = {} #new Dictionary<long, PlayerInfo>
     shotList = [] #new List<ShotInfo>
@@ -71,7 +71,7 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
-        self.client.sendColor([102, 0, 204])
+        self.client.sendColor([50, 50, 204])
         self.timer1.start()
         
 
@@ -302,10 +302,8 @@ class Bot():
     # Execute some decision
     # </summary>
     def DoDecision(self):
-        
-        
+        self.obj.acquire()
 
-        # self.obj.acquire()
         decision = self.gameAi.GetDecision()
         print('ACAO', decision )
         if decision == "virar_direita":
@@ -328,7 +326,7 @@ class Bot():
         self.client.sendRequestUserStatus()
         self.client.sendRequestObservation()
         
-        # self.obj.release()  
+        self.obj.release()  
 
 
     def timer1_Tick(self):
