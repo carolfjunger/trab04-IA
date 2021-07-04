@@ -163,7 +163,7 @@ class GameAI():
 
     def random_blocked(self):
         decision = self.random_virar()
-        return [decision, decision, "andar"]
+        return [decision, "andar"]
 
     def insere_percurso(self, acao):
         if(len(self.DecisionLis) > 10):
@@ -185,16 +185,23 @@ class GameAI():
                 self.fuga = True
             
             # melhorar depois
-            self.insere_percurso(decision)
+            self.DecisionLis = decision
+            # self.insere_percurso(decision)
         elif (estado == "achou_ouro"):
-            self.insere_percurso(["pegar_ouro", "pegar_anel"])
+            self.DecisionLis = [ "pegar_anel", "andar"] + self.DecisionLis
+
+            # self.insere_percurso(["pegar_ouro", "pegar_anel"])
         elif (estado == "achou_powerUp"):
-            self.insere_percurso(["pegar_powerup"])
+            self.DecisionLis = ["pegar_powerup", "andar"] + self.DecisionLis
+
+            # self.insere_percurso(["pegar_powerup"])
         elif (estado == "blocked"):
             # self.insere_percurso([self.random_blocked(), virar])
             self.insere_percurso(self.random_blocked())
 
         if(estado == "explorar"):
+            if len(self.DecisionLis) == 0:
+                self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
             self.fuga = False
 
             
@@ -216,7 +223,7 @@ class GameAI():
             astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
             self.countstep = 0
             print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
-            print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
+            # print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
 
         if "blocked" in o:
 
@@ -301,7 +308,7 @@ class GameAI():
 
         if "blueLight" in o:
 
-            self.DecisionLis = ["pegar_powerup", "andar"] + self.DecisionLis
+            # self.DecisionLis = ["pegar_powerup", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
             # if (pos.x, ppos.y) not in self.mapp.edges:
@@ -316,7 +323,7 @@ class GameAI():
 
         if "redLight" in o:
 
-            self.DecisionLis = [ "pegar_anel", "andar"] + self.DecisionLis
+            # self.DecisionLis = [ "pegar_anel", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
             # if (pos.x, pos.y) not in self.mapp.edges:
@@ -342,8 +349,8 @@ class GameAI():
     # </summary>
     def GetObservationsClean(self):
 
-        if len(self.DecisionLis) == 0:
-            self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
+        # if len(self.DecisionLis) == 0:
+        #     self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
         pos = self.GetPlayerPosition()
         ppos = self.prevplayer
         self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
