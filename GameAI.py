@@ -200,6 +200,9 @@ class GameAI():
             # self.insere_percurso([self.random_blocked(), virar])
             self.insere_percurso(self.random_blocked())
 
+        elif (estado == "breeze"):
+            self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
+
         if(estado == "explorar"):
             if len(self.DecisionLis) == 0:
                 self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
@@ -295,7 +298,10 @@ class GameAI():
                 enemy = i.split('#')
                 enemyDist = int(enemy[1])
                 if(enemyDist < 7):
-                    self.estadoAtual = "atacar"
+                    if "blocked" in o:
+                        self.estadoAtual= "blocked"
+                    else:
+                        self.estadoAtual = "atacar"
                     if(self.energy < 50):
                         self.estadoAtual = "fugir"
                 else:
