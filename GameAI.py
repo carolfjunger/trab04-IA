@@ -178,7 +178,6 @@ class GameAI():
             self.DecisionLis = ["atacar"] + self.DecisionLis
         elif (estado == "fugir"):
             decision = [virar, "andar",  "andar", "andar" ]
-            
             # melhorar depois
             self.DecisionLis = decision + self.DecisionLis
             # self.insere_percurso(decision)
@@ -198,7 +197,6 @@ class GameAI():
         if(estado == "explorar"):
             if len(self.DecisionLis) == 0:
                 self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
-            self.fuga = False
         if estado == "steps":
             if len(self.DecisionLis) == 0:
                 self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda", "andar_re"]), "andar", "andar"]
@@ -229,8 +227,7 @@ class GameAI():
             npos = self.NextPosition()
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
-            # if (pos.x, pos.y) not in self.mapp.edges:
-            #     self.mapp.edges[(pos.x, pos.y)] = {}
+
             self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
             self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
@@ -268,8 +265,7 @@ class GameAI():
             ppos = self.prevplayer
             npos = self.NextPosition()
             allpos = []
-            # if (pos.x, pos.y) not in self.mapp.edges:
-            #     self.mapp.edges[(pos.x, pos.y)] = {}
+
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
             self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
@@ -292,8 +288,7 @@ class GameAI():
             ppos = self.prevplayer
             npos = self.NextPosition()
             allpos = []
-            # if (pos.x, pos.y) not in self.mapp.edges:
-            #     self.mapp.edges[(pos.x, pos.y)] = {}
+
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
             self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
@@ -316,8 +311,7 @@ class GameAI():
             # self.DecisionLis = ["pegar_powerup", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
-            # if (pos.x, ppos.y) not in self.mapp.edges:
-            #     self.mapp.edges[(pos.x, pos.y)] = {}
+
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'E', "energy", 1)
             self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
@@ -332,8 +326,7 @@ class GameAI():
             # self.DecisionLis = [ "pegar_anel", "andar"] + self.DecisionLis
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
-            # if (pos.x, pos.y) not in self.mapp.edges:
-            #     self.mapp.edges[(pos.x, pos.y)] = {}
+
             self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold", 1)
             self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
