@@ -198,6 +198,9 @@ class GameAI():
         elif (estado == "blocked"):
             # self.insere_percurso([self.random_blocked(), virar])
             self.insere_percurso(self.random_blocked())
+        
+        elif (estado == "breeze"):
+            self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
 
         if(estado == "explorar"):
             if len(self.DecisionLis) == 0:
@@ -246,7 +249,7 @@ class GameAI():
         if "breeze" in o:
 
             self.estadoAtual= "breeze"
-            self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
+            
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
             npos = self.NextPosition()
