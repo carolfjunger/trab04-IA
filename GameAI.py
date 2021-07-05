@@ -50,6 +50,7 @@ class GameAI():
     countstep = 0
     fstpos = Position()
     fstposbool = True
+    lastMove = ""
     for l in input:
         virtualMap.append(list(l))
 
@@ -190,11 +191,11 @@ class GameAI():
         elif estado == "achou_powerUp":
             self.DecisionLis = ["pegar_powerup"] + self.DecisionLis
 
-        elif estado == "breeze":
-            self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
-        
-        elif estado == "flash":
-            self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
+        elif estado == "breeze" or estado == "flash":
+            if(self.lastMove == "andar_re"):
+                self.DecisionLis = ["andar", "andar", random.choice(["virar_direita", "virar_esquerda"]), "andar_re"]
+            else:
+                self.DecisionLis = ["andar_re", "andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"]
 
         elif estado == "explorar":
             self.flag_fuga = False
@@ -230,7 +231,7 @@ class GameAI():
             astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
             self.countstep = 0
             # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
-            print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
+            # print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
 
         if "blocked" in o:
 
@@ -266,7 +267,8 @@ class GameAI():
             self.maquina_estado()
 
         if "steps" in o:
-
+            self.estadoAtual = "steps"
+            self.maquina_estado()
             pass
 
         if "breeze" in o:
@@ -378,4 +380,9 @@ class GameAI():
     def GetDecision(self):
         print("--> ", self.DecisionLis)
         if len(self.DecisionLis) > 0:
+            self.lastMove = self.DecisionLis[0]
             return self.DecisionLis.pop(0)
+        print("decision random")
+        n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
+        self.lastMove = n
+        return n
