@@ -112,14 +112,20 @@ class Bot():
                             if cmd[1].find(",") > -1:
                             
                                 os = cmd[1].split(',')
-                                for i in range(0,len(os)):
-                                    o.append(os[i])
+                                print('os', os)
+                                for i in os:
+                                    if(cmd[1] == "breeze" and len(o) > 0):
+                                        o.insert(0, i)
+                                    else:
+                                        o.append(i)
+                                    # o.append(i)
                             
                             else:
-                                if(cmd[1] == "breeze"):
-                                    o.insert(0, cmd[1])
-                                else:
-                                    o.append(cmd[1])
+                                o.append(cmd[1])
+                                # if(cmd[1] == "breeze" and len(o) > 0):
+                                #     o.insert(0, cmd[1])
+                                # else:
+                                #     o.append(cmd[1])
 
                             self.gameAi.GetObservations(o)
                         
