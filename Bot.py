@@ -34,7 +34,7 @@ import datetime
 class Bot():
 
     name = "R2D2_1" # BOT NAME
-    host = "atari.icad.puc-rio.br" # SERVER
+    host = "atari.icad.puc-rio.br" # SERVER  "baffa.zapto.org"
 
     client = None
     gameAi = None
