@@ -31,6 +31,8 @@ from AstarS_AI import *
 # Game AI Example
 # </summary>
 class GameAI():
+    lisOfPW = []
+    lisOfGld = []
     pf = []
     move_to_star = []
     flag_block_All = False
@@ -248,17 +250,31 @@ class GameAI():
     def GetObservations(self, o):
 
         path = [0,0]
+        goal = []
+        auxheuristic=1000
         if self.flag_block_All == False:
             self.countstep += 1
             print("count  ", self.countstep)
             astar = {}
             constsofar = {}
-            if self.countstep >= 10:
-                # print(self.mapp.edges)
-                astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
+            if self.countstep >= 10 and (len(self.lisOfPW) != 0 or len(self.lisOfGld) != 0):
+
+                if self.energy <= 50 and len(self.lisOfPW) != 0:
+                    for getPW in self.lisOfPW:
+                        testH = heuristic1(getPW, (self.player.x, self.player.y))
+                        if testH < auxheuristic:
+                            auxheuristic = testH
+                            goal = getPW
+                elif len(self.lisOfGld) != 0:
+                    for getGLD in self.lisOfGld:
+                        testH = heuristic1(getGLD, (self.player.x, self.player.y))
+                        if testH < auxheuristic:
+                            auxheuristic = testH
+                            goal = getGLD
+
+                astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), goal)
                 self.countstep = 0
-                # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
-                self.pf = pathFinder((self.fstpos.x, self.fstpos.y), (self.player.x, self.player.y), astar)
+                self.pf = pathFinder(goal, (self.player.x, self.player.y), astar)
                 print("inicio ",(self.fstpos.x, self.fstpos.y), self.pf)
                 self.pf.reverse()
                 self.flag_block_All = True
@@ -300,7 +316,7 @@ class GameAI():
                     else:
                         self.estadoAtual = "explorar"
                     self.maquina_estado()
-                    
+
                 self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
@@ -370,8 +386,11 @@ class GameAI():
                 self.estadoAtual= "achou_powerUp"
                 self.maquina_estado()
 
+
                 pos = self.GetPlayerPosition()
                 ppos = self.prevplayer
+
+                lisOfPW.append((pos.x, pos.y))
 
                 self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'E', "energy", 1)
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
@@ -384,8 +403,12 @@ class GameAI():
 
                 self.estadoAtual= "achou_ouro"
                 self.maquina_estado()
+
+
                 pos = self.GetPlayerPosition()
                 ppos = self.prevplayer
+
+                lisOfGld.append((pos.x, pos.y))
 
                 self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold", 1)
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
@@ -406,7 +429,7 @@ class GameAI():
         if self.player.x == self.fstpos.x and self.player.y == self.fstpos.y:
             print("foiii")
             self.flag_block_All = False
-        if self.countstep >= 15:
+        if self.countstep >= 101:
             self.countstep = 0
         print("obs", o)
         # for i in self.virtualMap:
