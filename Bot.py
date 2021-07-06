@@ -33,7 +33,7 @@ import datetime
 # </summary>
 class Bot():
 
-    name = "R2D2_1" # BOT NAME
+    name = "R2D2" # BOT NAME
     host = "atari.icad.puc-rio.br" # SERVER  "baffa.zapto.org"
 
     client = None
@@ -41,7 +41,7 @@ class Bot():
     timer1 = None
     
     running = True
-    thread_interval = 0.1
+    thread_interval = 0.2
 
     playerList = {} #new Dictionary<long, PlayerInfo>
     shotList = [] #new List<ShotInfo>
@@ -71,7 +71,7 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
-        self.client.sendColor([0, 174, 0])
+        self.client.sendColor([0 , 207, 202])
         self.timer1.start()
         
 
@@ -372,7 +372,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(0, 174, 0) # BOT COLOR
+            self.client.sendRGB(102, 0, 204) # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()

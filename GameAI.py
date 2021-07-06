@@ -180,9 +180,10 @@ class GameAI():
             self.DecisionLis = ["atacar"] + self.DecisionLis
         elif estado == "fugir" and self.flag_fuga == False:
             self.flag_fuga = True
-            decision = ["andar",  virar, "andar"]
+            decision = ["andar",  virar, "andar", virar, "andar"]
             # melhorar depois
             self.DecisionLis = decision + self.DecisionLis
+
             # self.insere_percurso(decision)
         elif estado == "achou_ouro":
             self.DecisionLis = [ "pegar_anel"] + self.DecisionLis
@@ -206,7 +207,12 @@ class GameAI():
             self.DecisionLis = ["andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
         
         elif estado == "blocked":
-            self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda"]), "andar"]
+            if(self.lastMove == "virar_direita"):
+                self.DecisionLis = ["virar_esquerda", "andar"] + self.DecisionLis
+            elif(self.lastMove == "virar_esquerda"):
+                self.DecisionLis = ["virar_direita", "andar"] + self.DecisionLis
+            else:
+                self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
 
         # elif estado == "random":
         #     self.DecisionLis = [random.choice(["virar_direita", "virar_esquerda"]), "andar"]
@@ -232,7 +238,7 @@ class GameAI():
             self.countstep = 0
             # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
             # print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
-
+        
         if "blocked" in o:
 
             self.estadoAtual = "blocked"
@@ -256,10 +262,9 @@ class GameAI():
                 enemyDist = int(enemy[1])
                 if(enemyDist < 15 and self.energy > 50):
                     self.estadoAtual = "atacar"
-
                 else:
                     self.estadoAtual = "fugir"
-            self.maquina_estado()
+                self.maquina_estado()
 
         if "damage" in o:
 
@@ -351,8 +356,8 @@ class GameAI():
         #     self.maquina_estado()
 
         print("obs", o)
-        for i in self.virtualMap:
-            print(''.join(i))
+        # for i in self.virtualMap:
+        #     print(''.join(i))
 
 
 
@@ -382,7 +387,7 @@ class GameAI():
         if len(self.DecisionLis) > 0:
             self.lastMove = self.DecisionLis[0]
             return self.DecisionLis.pop(0)
-        print("decision random")
-        n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
-        self.lastMove = n
-        return n
+        # print("decision random")
+        # n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
+        # self.lastMove = n
+        # return n
