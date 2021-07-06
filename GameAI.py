@@ -31,10 +31,12 @@ from AstarS_AI import *
 # Game AI Example
 # </summary>
 class GameAI():
+    flag_block_All = False
     flag_fuga = False
     DecisionLis = []
     prevplayer = Position()
     player = Position()
+    fstpos = Position()
     state = "ready"
     dir = "north"
     score = 0
@@ -48,7 +50,6 @@ class GameAI():
     fuga = False
     oldPos = ()
     countstep = 0
-    fstpos = Position()
     fstposbool = True
     lastMove = ""
     for l in input:
@@ -104,17 +105,47 @@ class GameAI():
     def GetAllAdjacentPositions(self):
     
         ret = []
+        auxdir = []
+        if self.dir == "north":
+            auxdir = [(0, -1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (1, 1), (-1, 1)]
+        elif self.dir == "east":
+            auxdir = [(1, 0), (1, 1), (1, -1), (0, 1), (0, -1), (-1, 0), (-1, 1), (-1, -1)]
+        elif self.dir == "south":
+            auxdir = [(0, 1), (-1, 1), (1, 1), (-1, 0), (1, 0), (0, -1), (-1, -1), (1, -1)]
+        elif self.dir == "west":
+            auxdir = [(-1, 0), (-1, -1), (-1, 1), (0, -1), (0, 1), (1, 0), (1, -1), (1, 1)]
 
-        ret.append(Position(self.player.x - 1, self.player.y - 1)) #0
-        ret.append(Position(self.player.x, self.player.y - 1))     #1
-        ret.append(Position(self.player.x + 1, self.player.y - 1)) #2
+        #0 frente
+        ret.append((Position(self.player.x + auxdir[0][0], self.player.y + auxdir[0][1]), 
+        ["andar"]))
 
-        ret.append(Position(self.player.x - 1, self.player.y))     #3(mais a esquerda do mapa)
-        ret.append(Position(self.player.x + 1, self.player.y))     #4(mais a direita do mapa)
+        #1 diag frente direita
+        ret.append((Position(self.player.x + auxdir[1][0], self.player.y + auxdir[1][1]), 
+        ["andar", "virar_direita", "andar"]))
 
-        ret.append(Position(self.player.x - 1, self.player.y + 1)) #5
-        ret.append(Position(self.player.x, self.player.y + 1))     #6
-        ret.append(Position(self.player.x + 1, self.player.y + 1)) #7
+        #2 diag frente esquerda
+        ret.append((Position(self.player.x + auxdir[2][0], self.player.y + auxdir[2][1]), 
+        ["andar", "virar_esquerda", "andar"]))
+
+        #3 direita
+        ret.append((Position(self.player.x + auxdir[3][0], self.player.y + auxdir[3][1]), 
+        ["virar_direita", "andar"]))
+
+        #4 esquerda
+        ret.append((Position(self.player.x + auxdir[4][0], self.player.y + auxdir[4][1]), 
+        ["virar_esquerda", "andar"]))
+
+        #5 tras
+        ret.append((Position(self.player.x + auxdir[5][0], self.player.y + auxdir[5][1]), 
+        ["andar_re"]))
+
+        #6 diag tras direito
+        ret.append((Position(self.player.x + auxdir[6][0], self.player.y + auxdir[6][1]), 
+        ["andar_re", "virar_direita", "andar"]))
+
+        #7 diag tras esquerdo
+        ret.append((Position(self.player.x + auxdir[7][0], self.player.y + auxdir[7][1]), 
+        ["andar_re", "virar_esquerda", "andar"]))
 
         return ret
     
@@ -228,132 +259,149 @@ class GameAI():
         #cmd = "";
         # for s in o:
         # enemy = s.split('#')
-        self.countstep += 1
-        print("count  ", self.countstep)
+        n = []
+        move_to_star = []
+        if self.flag_block_All == False:
+            # self.countstep += 1
+            print("count  ", self.countstep)
+            astar = []
+            constsofar = {}
+            if self.countstep >= 10 and self.flag_block_All == False:
+                astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
+                self.countstep = 0
+                n = pathFinder((self.fstpos.x, self.fstpos.y), (self.player.x, self.player.y), astar)
+                print("inicio ",(self.fstpos.x, self.fstpos.y), len(n), n)
+                # move_to_star = self.GetPlayerPosition
+                # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
+                move_to_star = self.GetAllAdjacentPositions()
+                n.reverse()
+                self.flag_block_All = True
+                self.DecisionLis = []
+                print("aquiS")
 
-        astar = []
-        constsofar = {}
-        if self.countstep >= 10:
-            astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
-            self.countstep = 0
-            n = pathFinder((self.fstpos.x, self.fstpos.y), (self.player.x, self.player.y), astar)
-            print("inicio ",(self.fstpos.x, self.fstpos.y), len(n), n)
-            # move_to_star = self.GetPlayerPosition
-            # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
-            # print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
-        
-        if "blocked" in o:
+        if self.flag_block_All == True:
+            for mTs in n:
+                for i in move_to_star:
+                    if i[0] == mTs[0] and i[1] == mTs[1]:
+                        print("A Star*")
+                        self.DecisionLis = i[1]
+        else:
+            if "blocked" in o:
 
-            self.estadoAtual = "blocked"
-            self.maquina_estado()
-            npos = self.NextPosition()
-            pos = self.GetPlayerPosition()
-            ppos = self.prevplayer
+                self.estadoAtual = "blocked"
+                self.maquina_estado()
+                npos = self.NextPosition()
+                pos = self.GetPlayerPosition()
+                ppos = self.prevplayer
 
-            self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
-            self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
+                self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
+                self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
 
-            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
 
-        for i in o:
-            if "enemy" in i:
-                enemy = i.split('#')
-                enemyDist = int(enemy[1])
-                if(enemyDist < 15 and self.energy > 50):
-                    self.estadoAtual = "atacar"
-                else:
-                    self.estadoAtual = "fugir"
+            for i in o:
+                if "enemy" in i:
+                    enemy = i.split('#')
+                    enemyDist = int(enemy[1])
+                    if(enemyDist < 15 and self.energy > 50):
+                        self.estadoAtual = "atacar"
+
+                    else:
+                        self.estadoAtual = "fugir"
+                    self.maquina_estado()
+
+            if "damage" in o:
+
+                self.estadoAtual = "fugir"
                 self.maquina_estado()
 
-        if "damage" in o:
+            if "steps" in o:
+                self.estadoAtual = "steps"
+                self.maquina_estado()
+                pass
 
-            self.estadoAtual = "fugir"
-            self.maquina_estado()
+            if "breeze" in o:
 
-        if "steps" in o:
-            self.estadoAtual = "steps"
-            self.maquina_estado()
-            pass
+                self.estadoAtual = "breeze"
+                self.maquina_estado()
 
-        if "breeze" in o:
+                pos = self.GetPlayerPosition()
+                ppos = self.prevplayer
+                npos = self.NextPosition()
+                allpos = []
 
-            self.estadoAtual = "breeze"
-            self.maquina_estado()
+                self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
+                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
-            pos = self.GetPlayerPosition()
-            ppos = self.prevplayer
-            npos = self.NextPosition()
-            allpos = []
+                allpos = self.GetAllAdjacentPositions()
+                loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
+                for i in loc3:
+                    if i not in self.mapp.edges[(pos.x, pos.y)]:
+                        self.mapp.edges[(pos.x, pos.y)][i] = None
+                    if type(self.mapp.edges[(pos.x, pos.y)][i]) != Obstacle:
+                        self.mapp.edges[(pos.x, pos.y)][i] = Obstacle(1000, 'x', "Buraco", 0.25)
+                    self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
+                
 
-            self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
-            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+            if "flash" in o:
 
-            allpos = self.GetAllAdjacentPositions()
-            loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
-            for i in loc3:
-                if i not in self.mapp.edges[(pos.x, pos.y)]:
-                    self.mapp.edges[(pos.x, pos.y)][i] = None
-                if type(self.mapp.edges[(pos.x, pos.y)][i]) != Obstacle:
-                    self.mapp.edges[(pos.x, pos.y)][i] = Obstacle(1000, 'x', "Buraco", 0.25)
-                self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
-            
+                self.estadoAtual = "flash"
+                self.maquina_estado()
 
-        if "flash" in o:
+                pos = self.GetPlayerPosition()
+                ppos = self.prevplayer
+                npos = self.NextPosition()
+                allpos = []
 
-            self.estadoAtual = "flash"
-            self.maquina_estado()
+                self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
+                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
-            pos = self.GetPlayerPosition()
-            ppos = self.prevplayer
-            npos = self.NextPosition()
-            allpos = []
+                allpos = self.GetAllAdjacentPositions()
+                loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
 
-            self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
-            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
-
-            allpos = self.GetAllAdjacentPositions()
-            loc3 = [(npos.x, npos.y), (allpos[3].x, allpos[3].y), (allpos[4].x, allpos[4].y)]
-
-            for i in loc3:
-                if i not in self.mapp.edges[(pos.x, pos.y)]:
-                    self.mapp.edges[(pos.x, pos.y)][i] = None
-                if type(self.mapp.edges[(pos.x, pos.y)][i]) != Obstacle:
-                    self.mapp.edges[(pos.x, pos.y)][i] = Obstacle(1000, 't', "Teleport", 0.25)
-                self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
+                for i in loc3:
+                    if i not in self.mapp.edges[(pos.x, pos.y)]:
+                        self.mapp.edges[(pos.x, pos.y)][i] = None
+                    if type(self.mapp.edges[(pos.x, pos.y)][i]) != Obstacle:
+                        self.mapp.edges[(pos.x, pos.y)][i] = Obstacle(1000, 't', "Teleport", 0.25)
+                    self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
 
 
-        if "blueLight" in o:
+            if "blueLight" in o:
 
-            self.estadoAtual= "achou_powerUp"
-            self.maquina_estado()
+                self.estadoAtual= "achou_powerUp"
+                self.maquina_estado()
 
-            pos = self.GetPlayerPosition()
-            ppos = self.prevplayer
+                pos = self.GetPlayerPosition()
+                ppos = self.prevplayer
 
-            self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'E', "energy", 1)
-            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+                self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'E', "energy", 1)
+                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
-            self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
-            print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
-           
+                self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
+                print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
+               
 
-        if "redLight" in o:
+            if "redLight" in o:
 
-            self.estadoAtual= "achou_ouro"
-            self.maquina_estado()
-            pos = self.GetPlayerPosition()
-            ppos = self.prevplayer
+                self.estadoAtual= "achou_ouro"
+                self.maquina_estado()
+                pos = self.GetPlayerPosition()
+                ppos = self.prevplayer
 
-            self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold", 1)
-            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+                self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(0.5, 'G', "gold", 1)
+                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
-            self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
+                self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
 
-        # if len(self.DecisionLis) == 0:
-        #     print("decision random")
-        #     self.estadoAtual = "random"
-        #     self.maquina_estado()
+            # if len(self.DecisionLis) == 0:
+            #     print("decision random")
+            #     self.estadoAtual = "random"
+            #     self.maquina_estado()
+
+        if self.player.x == self.fstpos.x and self.player.y == self.fstpos.y:
+            self.flag_block_All = False
 
         print("obs", o)
         # for i in self.virtualMap:
@@ -386,6 +434,8 @@ class GameAI():
         print("--> ", self.DecisionLis)
         if len(self.DecisionLis) > 0:
             self.lastMove = self.DecisionLis[0]
+            if self.lastMove  == "andar":
+                self.countstep += 1
             return self.DecisionLis.pop(0)
         # print("decision random")
         # n = random.choice(["virar_direita", "virar_esquerda", "andar", "andar", "andar", "andar", "andar"])
