@@ -236,6 +236,9 @@ class GameAI():
         if self.countstep >= 10:
             astar, costsofar = a_star_search(self.mapp, (self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y))
             self.countstep = 0
+            n = pathFinder((self.fstpos.x, self.fstpos.y), (self.player.x, self.player.y), astar)
+            print("inicio ",(self.fstpos.x, self.fstpos.y), len(n), n)
+            # move_to_star = self.GetPlayerPosition
             # print("AStar -> ", "inicio ",(self.fstpos.x, self.fstpos.y), astar)
             # print(pathFinder((self.player.x, self.player.y), (self.fstpos.x, self.fstpos.y), astar))
         
@@ -247,13 +250,10 @@ class GameAI():
             pos = self.GetPlayerPosition()
             ppos = self.prevplayer
 
-            if self.ValidPos(pos.x, pos.y) and self.ValidPos(npos.x, npos.y):
-                self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
-                print(npos.x, npos.y, "npos")
-                self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
+            self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)] = Obstacle(1000, 'O', "none", 1)
+            self.virtualMap[npos.y][npos.x] = self.mapp.edges[(pos.x, pos.y)][(npos.x, npos.y)].getsign()
 
-            if self.ValidPos(pos.x, pos.y) and self.ValidPos(ppos.x, npos.y):
-                self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
+            self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
 
         for i in o:
