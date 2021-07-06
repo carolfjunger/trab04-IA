@@ -71,7 +71,7 @@ class Bot():
         self.client.append_chg_handler(self.SocketStatusChange)
 
         self.client.connect(self.host)
-        self.client.sendColor([0 , 207, 202])
+        self.client.sendColor([130 , 231, 255])
         self.timer1.start()
         
 
@@ -104,7 +104,7 @@ class Bot():
                     
                         if cmd[1].strip() == "":
                             self.gameAi.GetObservationsClean()
-
+                            self.gameAi.GetObservations([])
                         else:
                        
                             o = []
