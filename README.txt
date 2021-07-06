@@ -1,0 +1,4 @@
+Numa primeira tentativa, criamos uma máquina de estados para tratar os casos possíveis do mapa, como  "blocked", "breeze", "atacar", "fugir", "flash", "achou_ouro",
+"achou_powerUp". entre outros comandos básicos, com uma movimentação baseada na aleatoriedade. Numa segunda adição, trabalhamos com um código A* para caminhar na parte do mapa já descoberta, 
+mas este não possuía o devido tratamento dos casos como cair em buracos, ou pegar tesouros, então para a competição mantivemos somente a lógica 
+da máquina de estados. Agora, na última versão, criamos uma adaptação para juntar o A* com a lógica de movimentação e a máquina de estados cuidando da lógica de coleta, fuga e combate.
