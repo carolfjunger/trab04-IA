@@ -51,6 +51,7 @@ class GameAI():
     fstpos = Position()
     fstposbool = True
     lastMove = ""
+    hitCount = 10
     for l in input:
         virtualMap.append(list(l))
 
@@ -204,7 +205,8 @@ class GameAI():
                 self.DecisionLis = ["andar", "andar", random.choice(["virar_esquerda", "virar_direita", "andar"]), "andar", "andar"]
 
         elif estado == "steps":
-            self.DecisionLis = ["andar_re", random.choice(["virar_direita", "virar_esquerda"]), "andar"] + self.DecisionLis
+            randomAndar = random.choice(["andar_re", "andar"])
+            self.DecisionLis = [randomAndar, random.choice(["virar_direita", "virar_esquerda"]), randomAndar] + self.DecisionLis
         
         elif estado == "blocked":
             if(self.lastMove == "virar_direita"):
@@ -260,8 +262,9 @@ class GameAI():
             if "enemy" in i:
                 enemy = i.split('#')
                 enemyDist = int(enemy[1])
-                if(enemyDist < 15 and self.energy > 50):
+                if(enemyDist < 15 and self.energy > 50 and self.hitCount > 0):
                     self.estadoAtual = "atacar"
+                    self.hitCount = self.hitCount - 1
                 else:
                     self.estadoAtual = "fugir"
                 self.maquina_estado()
@@ -323,7 +326,7 @@ class GameAI():
                 self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
 
 
-        if "blueLight" in o:
+        if "redLight" in o:
 
             self.estadoAtual= "achou_powerUp"
             self.maquina_estado()
@@ -338,7 +341,7 @@ class GameAI():
             print("POS POWER X:", str(pos.x),"Y" ,str(pos.y))
            
 
-        if "redLight" in o:
+        if "blueLight" in o:
 
             self.estadoAtual= "achou_ouro"
             self.maquina_estado()
@@ -350,6 +353,8 @@ class GameAI():
 
             self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
 
+        if "hit" in o:
+            self.hitCount = 10
         # if len(self.DecisionLis) == 0:
         #     print("decision random")
         #     self.estadoAtual = "random"
