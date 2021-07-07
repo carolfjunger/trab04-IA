@@ -321,6 +321,7 @@ class GameAI():
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
 
+
             for i in o:
                 if "enemy" in i:
                     pos = self.GetPlayerPosition()
@@ -344,6 +345,17 @@ class GameAI():
                 ppos = self.prevplayer
 
                 self.estadoAtual = "fugir"
+
+#         for i in o:
+#             if "enemy" in i:
+#                 enemy = i.split('#')
+#                 enemyDist = int(enemy[1])
+#                 if(enemyDist < 15 and self.energy > 50 and self.hitCount > 0):
+#                     self.estadoAtual = "atacar"
+#                     self.hitCount = self.hitCount - 1
+#                 else:
+#                     self.estadoAtual = "fugir"
+
                 self.maquina_estado()
                 self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)] = Obstacle(1, '.', "none", 1)
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
@@ -405,7 +417,7 @@ class GameAI():
                     self.virtualMap[i[1]][i[0]] = self.mapp.edges[(pos.x, pos.y)][i].getsign()
 
 
-            if "blueLight" in o:
+            if "redLight" in o:
 
                 self.estadoAtual= "achou_powerUp"
                 self.maquina_estado()
@@ -423,7 +435,9 @@ class GameAI():
                
 
 
-            if "redLight" in o:
+
+            if "blueLight" in o:
+
 
                 self.estadoAtual= "achou_ouro"
                 self.maquina_estado()
@@ -437,6 +451,7 @@ class GameAI():
                 self.mapp.edges[(pos.x, pos.y)][(ppos.x, ppos.y)] = Obstacle(1, '.', "none", 1)
 
                 self.virtualMap[pos.y][pos.x] = self.mapp.edges[(ppos.x, ppos.y)][(pos.x, pos.y)].getsign()
+
 
             if len(o) == 0:
                 self.estadoAtual = "explorar"
