@@ -16,7 +16,7 @@ def pathFinder(goal: Location, start: Location, came_from: dict):
     path = []
     current = goal
     while current != start: 
-        path.append(current[::-1])
+        path.append(current)
         current = came_from[current]
     return path
 
